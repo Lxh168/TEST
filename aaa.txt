@@ -1,0 +1,547 @@
+<div class="main-content">
+
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="ace-icon fa fa-globe home-icon"></i>
+                    <span><a href="/">诺怀云修管理系统</a></span>
+                </li>
+                <li class="active">
+                    新建洗车单
+                </li>
+            </ul><!-- /.breadcrumb -->
+            <div class="nav-search" id="nav-search">
+                <form class="form-search">
+                    <span class="input-icon">
+                        <i class="ace-icon fa fa-home nav-search-icon"></i>
+                        <span class="nav-search-input" style="padding-left: 24px; padding-right: 6px; background-color: #fff;">岳阳百事吉汽车维修保养中心</span>
+                    </span>
+                </form>
+            </div>
+        </div>
+
+        <div class="page-content">
+
+            <!-- /.ace-settings-container -->
+            <div class="row">
+                <div class="col-xs-12">
+                    <!-- PAGE CONTENT BEGINS -->
+                    <div class="zone zone-content">
+
+
+                        <link href="/Modules/Nova.AutoRepair.Repair/Styles/css/washcar/washcar.css?_=8.3.6759.20311" rel="stylesheet" />
+                        <input id="customerId" hidden="hidden" value="-1" />
+                        <div class="topContainer">
+                            <div class="btnContainer">
+                                <button Style="margin-right:7px;" autocomplete="off" class="k-primary k-button" data-loading-text="开单中..." id="btn_Create" type="button"><i class='fa fa-save'></i> 开单</button><script>
+                                kendo.syncReady(function(){jQuery("#btn_Create").kendoButton({});});
+                            </script>        <button Style="margin-right:7px;" autocomplete="off" class="k-default k-button" data-loading-text="返回中..." id="btn_Back" type="button"><i class='fa fa-reply'></i> 返回</button><script>
+                                kendo.syncReady(function(){jQuery("#btn_Back").kendoButton({});});
+                            </script>
+                            </div>
+                            <div class="statusContainer">
+                                <div id="steps"></div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <style>
+                            div.required:before {
+                                content: "*";
+                                color: red;
+                                margin-right: 5px;
+                                vertical-align: middle;
+                                font-weight: bold;
+                            }
+
+                            .k-popup.k-list-container {
+                                padding: 0px;
+                                border: 0px;
+                            }
+
+                            .k-invalid-msg {
+                                position: fixed !important;
+                            }
+                        </style>
+                        <script>
+                            function createCar() {
+                                var combobox = $("#CarId").data("kendoComboBox");
+                                //AMS-1257：要求将客户在输入框输入用作搜索的值直接填入打开的快捷新增窗口的车牌号输入栏
+                                var inputValue = combobox.dataSource.filter();
+                                var inputCarNo = "";
+                                if (inputValue && inputValue.filters.length != 0) {
+                                    inputCarNo = inputValue.filters[0].value;
+                                }
+                                $("body").append("<div id='window_Car'></div>");
+                                var windowCar = $('#window_Car');
+
+                                windowCar.kendoWindow({
+                                    width: 1000,
+                                    minHeight: 400,
+                                    title: "新增车辆",
+                                    visible: false,
+                                    modal: true,
+                                    resizable: false,
+                                    close: function () {
+                                        this.destroy();
+                                    }
+                                });
+
+                                windowCar.data("kendoWindow").content("加载中...").refresh({
+                                    url: "/Nova.AutoRepair.Customer/Car/Shortcut_CarAndCustomer_Create?onSuccess=WashCarManager.shortCut_CreateSuccess",
+                                    data: {
+                                        customerId: "",
+                                        inputCarNo: inputCarNo
+                                    }
+                                });
+                                windowCar.data("kendoWindow").center().open();
+                            }
+                        </script>
+                        <form id="serviceCarForm" class="row-fluid edit-mode" role="form">
+                            <div class="serviceCarContanier createContainer">
+                                <div>
+                                    <div class="information">
+                                        <div class="fontColor333333 firstTitle displayInlineBlock">选择车辆：</div>
+                                        <div class="displayInlineBlock carContainer">
+                                            <div class="displayInlineBlock carBlock" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="搜索不到对应车辆时，请点击 + 添加新车辆">
+                                                <input data-selected-msg="请选择车辆" data-selected-value="0" data-val-remote="该车牌号未出厂，不能重复接车，请去系统配置中开启允许重复接车配置" data-val-remote-url="/Nova.AutoRepair.Customer/Car/RemindRepeatedCar" id="CarId" name="CarId" style="width: 180px" type="text" /><script>
+                                                kendo.syncReady(function(){jQuery("#CarId").kendoComboBox({"select":WashCarManager.onChange_CarId,"dataSource":{"type":"aspnetmvc-ajax","transport":{"read":{"url":"/Nova.AutoRepair.Customer/Car/CarItemsJustForReceiveCar"}},"pageSize":40,"page":0,"total":0,"serverPaging":true,"serverFiltering":true,"filter":[],"schema":{"data":"Data","total":"Total"}},"animation":false,"dataTextField":"Text","filter":"contains","height":210,"footerTemplate":"\u003cdiv class=\u0027k-primary\u0027 style=\u0027width:100%;border-radius:4px;border:none\u0027\u003e\u003cbutton onclick=\u0027createCar()\u0027 style=\u0027width:100%;margin:auto;display:block;\u0027 class=\u0027k-button k-primary\u0027\u003e+ 新增车辆\u003c/button\u003e\u003c/div\u003e","noDataTemplate":"\u003cdiv style=\u0027color:DarkGray;\u0027\u003e\u003cspan\u003e没有查询到数据，请修改查询条件/去新增\u003c/span\u003e\u003c/div\u003e","virtual":{"valueMapper":WashCarManager.carNo_ValueMapper,"itemHeight":26},"template":"\u003cspan style=\"display:block;\"\u003e\u003cspan style=\"width:90px;display:block;float:left;height:26px;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\"\u003e#:data.CarNo#\u003c/span\u003e\u003cspan style=\"width:150px;display:inline-block;float:left;height:26px;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\" \u003e#:data.Type#\u003c/span\u003e\u003cspan style=\"width:180px;display:inline-block;float:left;height:26px;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\" \u003e#:data.CustomerName#\u003c/span\u003e\u003cspan style=\"width:95px;display:inline-block;float:left;height:26px;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\" \u003e#:data.Mobile#\u003c/span\u003e\u003c/span\u003e","autoBind":true,"dataValueField":"Value","placeholder":"---查询/新增车辆---"});});
+                                            </script>                            <span class="k-invalid-msg" data-for="CarId"></span>
+                                            </div>
+                                            <div class="displayInlineBlock">
+
+                                            </div>
+                                        </div>
+
+                                        <div id="txt_CustomerName" class="fontColor333333 displayInlineBlock fontWeightBold"></div>
+                                        <div id="txt_CustomerMobile" class="fontColor333333 displayInlineBlock fontWeight"></div>
+                                        <div id="baseInfo" class="displayInlineBlock baseInformation">基础信息</div>
+
+                                        <script id="baseInfoTemplate" type="text/x-kendo-template">
+                                            <div class="cardetail">
+                                                <div class="car"></div>
+                                                <div class="fontSize12">#:CarType || "" # #:CarColor || ""#</div>
+                                                <div class="fontSize12">Vin：#:CarVINNo || ""#</div>
+                                                <div class="repair"></div>
+                                                <div class="fontSize12">进厂#:RepairCount || 0#次</div>
+                                                <div class="fontSize12">上次进厂时间： #:LatestRepairDate || ""#</div>
+                                                <div class="fontSize12">上次建议保养里程：#:LatestSugestMaintenanceMileage || ""#</div>
+                                            </div>
+                                        </script>
+                                        <div id="memberCard" class="displayInlineBlock vipCard" style="display: none;"></div>
+                                        <input id="memberId" type="hidden" />
+                                        <input id="memberCurrentEmoney" type="hidden" />
+                                        <input id="memberWorkloadDiscount" type="hidden" />
+
+
+                                        <script id="memberInfoTemplate" type="text/x-kendo-template">
+                                            <div class="cardetail">
+                                                <div><span>会员卡号：#:MemberCardNo || ""#</span><span></span></div>
+                                                <div><span>余额：#=kendo.toString(MemberCurrentEmoney, "0.00")  || 0#</span><span></span></div>
+                                                <div><span>工时折扣：</span><span>#= WashCarManager.formatDiscount(MemberWorkloadDiscount || 1)#</span></div>
+                                                <div><span>材料折扣：</span><span>#= WashCarManager.formatDiscount(MemberMaterialDiscount || 1)#</span></div>
+                                                <div><span>管理折扣：</span><span>#= WashCarManager.formatDiscount(MemberManageDiscount || 1)#</span></div>
+                                            </div>
+                                        </script>
+                                    </div>
+
+                                    <div class="serviceBooking">
+                                        <div class="fontColor333333 firstTitle displayInlineBlock">预约单：</div>
+                                        <div class="displayInlineBlock">
+                                            <div class="displayInlineBlock">
+                                                <input id="ServiceBookingId" name="ServiceBookingId" style="width:180px;" type="text" /><script>
+                                                kendo.syncReady(function(){jQuery("#ServiceBookingId").kendoDropDownList({"dataSource":{"transport":{"read":{"url":"/Nova.AutoRepair.Repair/ServiceBooking/DropDownList_ServiceBooking_ReadByCarId","data":filterCarId},"prefix":""},"serverFiltering":true,"filter":[],"schema":{"errors":"Errors"}},"animation":false,"dataTextField":"Text","height":320,"minLength":2,"dataValueField":"Value","cascadeFrom":"CarId"});});
+                                            </script>
+                                                <script>
+                                                    function filterCarId() {
+                                                        return {
+                                                            carId: $('#CarId').data('kendoComboBox').value()
+                                                        }
+                                                    }
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="datetime">
+                                        <div class="displayInlineBlock verticalMiddle fontSize14 intoFactoryTime required">进厂时间~预计出厂时间：</div>
+                                        <div class="displayInlineBlock verticalMiddle fontSize14 intoFactoryTimeS">进厂时间：</div>
+                                        <div class="displayInlineBlock">
+                                            <input data-required-msg="必填项" id="txt_IntoFactoryTime" name="txt_IntoFactoryTime" required="required" style="width: 180px" type="text" value="2019/04/24 15:16" /><script>
+                                            kendo.syncReady(function(){jQuery("#txt_IntoFactoryTime").kendoDateTimePicker({"format":"yyyy/MM/dd HH:mm","min":new Date(1900,0,1,0,0,0,0),"max":new Date(2099,11,31,0,0,0,0),"interval":30});});
+                                        </script>
+                                            <span class="k-invalid-msg" data-for="txt_IntoFactoryTime"></span>
+                                        </div>
+                                        <div class="displayInlineBlock verticalMiddle fontSize14 plannedFinishDateS">预计出厂时间：</div>
+                                        <div class="displayInlineBlock">
+                                            <input data-required-msg="必填项" id="txt_PlannedFinishDate" name="txt_PlannedFinishDate" required="required" style="width: 180px" type="text" value="2019/04/27 15:16" /><script>
+                                            kendo.syncReady(function(){jQuery("#txt_PlannedFinishDate").kendoDateTimePicker({"format":"yyyy/MM/dd HH:mm","min":new Date(1900,0,1,0,0,0,0),"max":new Date(2099,11,31,0,0,0,0),"interval":30});});
+                                        </script>
+                                            <span class="k-invalid-msg" data-for="txt_PlannedFinishDate"></span>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="tabContainer">
+                            <div class="k-tabstrip-wrapper"><div class="k-widget k-tabstrip k-header" id="tabStrip"><ul class="k-reset k-tabstrip-items"><li class="k-item k-state-default k-state-active"><span class="k-link" unselectable="on">本店维修历史</span></li><li class="k-item k-state-default"><span class="k-link" unselectable="on">客户信息</span></li><li class="k-item k-state-default"><span class="k-link" unselectable="on">客户套餐</span></li></ul><div class="k-content k-state-active" id="tabStrip-1" style="display:block"></div><div class="k-content" id="tabStrip-2"><style>
+                                #tabStrip * {
+                                    box-sizing: border-box;
+                                }
+
+                                #tabStrip .row div {
+                                    padding: 0;
+                                }
+
+                                #tabStrip .clabel {
+                                    text-align: right;
+                                    margin-bottom: 15px;
+                                    padding: 0;
+                                }
+
+                                #tabStrip .cvalue {
+                                    margin-bottom: 15px;
+                                    text-decoration: underline;
+                                    vertical-align: middle;
+                                    height: 14px;
+                                    padding: 0;
+                                }
+                            </style>
+
+
+
+
+
+                                <script id="customerInfoTemplate" type="text/x-kendo-template">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <div class="col-md-6">
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">客户名称：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerName || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">客户等级：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerLevel || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">手机：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerPhone || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">客户类型：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerType || ''# </span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">归属公司/门店：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.OrganizationName || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">服务密码：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.Password || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">联系人：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerContactName || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">身份证号：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerIdNo || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">座机：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.FixedLine || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">联系地址：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerAddress || ''#</span></div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">微信：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerWeChat || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">到店距离：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.DistanceToShop || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">客户年龄段：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerAgeGroup || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">性别：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.Gender || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">生日：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: kendo.toString(kendo.parseDate(Data.Birthday), "yyyy-MM-dd")  || ''#</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">QQ：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.QQ || '' #</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">爱好：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.CustomerHobby || '' #</span></div>
+                                                </div>
+                                                <div class="col-xs-12">
+                                                    <div class="col-xs-4 clabel">备注：</div>
+                                                    <div class="col-xs-8 cvalue"><span>#: Data.Remark || '' #</span></div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </script>
+
+                                <div id="customerInfoContainer">
+
+                                </div>
+
+                            </div><div class="k-content" id="tabStrip-3"><script type="text/javascript">
+                                function onAddPackageId(e) {
+                                    var postData = {};
+                                    postData["FilterOptions.PackageId"] = e;
+                                    return postData;
+                                }
+
+                                function onAddtionData() {
+                                    var postData = {};
+                                    postData.customerId = $("#customerId").val();
+                                    return postData;
+                                }
+
+                                function formatShare(data) {
+                                    if (data.IsShare) {
+                                        return '<span class="label label-sm label-success" style="line-height: 12px;height: 18px;">是</span>';
+                                    }
+                                    return '<span class="label label-sm label-grey" style="line-height: 12px;height: 18px;">否</span>';
+
+                                }
+
+                                function formatUseStatus(data) {
+                                    switch (data.UseStatus) {
+                                        case "使用中":
+                                            return '<span class="label label-sm label-success" style="line-height: 12px;height: 18px;">使用中</span>';
+                                        case "未开始":
+                                            return '<span class="label label-sm label-warning" style="line-height: 12px;height: 18px;">未开始</span>';
+                                        case "已完结":
+                                            return '<span class="label label-sm label-grey" style="line-height: 12px;height: 18px;">已完结</span>';
+                                    }
+                                    return data.UseStatus;
+                                }
+
+                                function formatIsExpire(data) {
+                                    var endDate = kendo.parseDate(data.ValidEndDate);
+                                    var vliadDate = new Date(endDate.setDate(endDate.getDate() + 1));
+                                    if (vliadDate >= new Date()) {
+                                        return '<span class="label label-sm label-success" style="line-height: 14px;height: 14px;">未到期</span>';
+                                    } else {
+                                        return '<span class="label label-sm label-warning" style="line-height: 14px;height: 14px;">已到期</span>';
+                                    }
+                                }
+
+                                function formatCount(data) {
+                                    if (parseFloat(data.Count) < 0) {
+                                        return "<span>无限</span>";
+                                    } else {
+                                        return "<span>" + data.Count + "</span>";
+                                    }
+                                }
+
+                                function formatRemainCount(data) {
+                                    if (parseFloat(data.RemainCount) < 0) {
+                                        return "<span>无限</span>";
+                                    } else {
+                                        return "<span>" + data.RemainCount + "</span>";
+                                    }
+                                }
+
+                                function onDataBound_Grid_CustomerPackageForCustomerList(e) {
+                                    updateCustomerPackageToolBarButtonStatus(null);
+                                }
+
+                                function onChange_Grid_CustomerPackageForCustomerList(e) {
+                                    var dataItem = this.dataItem(this.select());
+                                    updateCustomerPackageToolBarButtonStatus(dataItem);
+                                }
+
+                                function updateCustomerPackageToolBarButtonStatus(dataItem) {
+                                    $("#btn_Edit_CustomerPackage").attr("disabled", !(dataItem && dataItem.UseStatus == "未开始" && dataItem.OwnData)).toggleClass("k-state-disabled", !(dataItem && dataItem.UseStatus == "未开始" && dataItem.OwnData));
+                                    $("#btn_Delete_CustomerPackage").attr("disabled", !(dataItem && dataItem.UseStatus == "未开始" && dataItem.OwnData)).toggleClass("k-state-disabled", !(dataItem && dataItem.UseStatus == "未开始" && dataItem.OwnData));
+                                    $("#btn_Print_CustomerPackage").attr("disabled", !(dataItem)).toggleClass("k-state-disabled", !(dataItem));
+                                    $("#btn_ChangeEndDate_CustomerPackage").attr("disabled", !(dataItem)).toggleClass("k-state-disabled", !(dataItem));
+                                }
+
+                                function onClick_Btn_ChangeEndDate_CustomerPackage(e) {
+                                    e.preventDefault();
+                                    var customerPackage = $("#grid_CustomerPackageForCustomerList").data("kendoGrid");
+                                    var dataItem = customerPackage.dataItem(customerPackage.select());
+                                    if (!dataItem) {
+                                        return;
+                                    }
+
+                                    $("body").append("<div id='window_ChangePackageEndDate'></div>");
+                                    var win = $("#window_ChangePackageEndDate");
+                                    win.kendoWindow({
+                                        width: 810,
+                                        title: "到期时间调整",
+                                        visible: false,
+                                        modal: true,
+                                        resizable: false,
+                                        refresh: function (e) {
+                                            this.center();
+                                            this.setOptions({
+                                                position: {
+                                                    top: 200,
+                                                    left: this.options.position.left
+                                                }
+                                            });
+                                        },
+                                        close: function (e) {
+                                            this.destroy();
+                                        }
+                                    });
+
+                                    win.data("kendoWindow").content("加载中...").refresh({
+                                        url: "/Nova.AutoRepair.Customer/CustomerBusiness/Window_ChangePackageEndDate",
+                                        data: {
+                                            CustomerPackageId: dataItem.Id,
+                                            onSuccess: ""
+                                        }
+                                    });
+                                    win.data("kendoWindow").center().open();
+                                }
+
+                                function onClick_Btn_Edit_CustomerPackage(e) {
+                                    e.preventDefault();
+                                    var customerPackage = $("#grid_CustomerPackageForCustomerList").data("kendoGrid");
+                                    var dataItem = customerPackage.dataItem(customerPackage.select());
+                                    if (!dataItem) {
+                                        return;
+                                    }
+
+                                    $("body").append("<div id='window_PackageHandling'></div>");
+                                    var win = $("#window_PackageHandling");
+                                    win.kendoWindow({
+                                        width: 810,
+                                        title: "套餐变更",
+                                        visible: false,
+                                        modal: true,
+                                        resizable: false,
+                                        refresh: function (e) {
+                                            this.center();
+                                            this.setOptions({
+                                                position: {
+                                                    top: 100,
+                                                    left: this.options.position.left
+                                                }
+                                            });
+                                        },
+                                        close: function (e) {
+                                            this.destroy();
+                                        }
+                                    });
+
+                                    win.data("kendoWindow").content("加载中...").refresh({
+                                        url: "/Nova.AutoRepair.Customer/CustomerBusiness/Window_PackageEdit",
+                                        data: {
+                                            customerPackageId: dataItem.Id,
+                                            onSuccess: ""
+                                        }
+                                    });
+                                    win.data("kendoWindow").center().open();
+                                }
+
+                                function onClick_Btn_Delete_CustomerPackage(e) {
+                                    e.preventDefault();
+
+                                    var customerPackage = $("#grid_CustomerPackageForCustomerList").data("kendoGrid");
+                                    var dataItem = customerPackage.dataItem(customerPackage.select());
+                                    if (!dataItem) {
+                                        return;
+                                    }
+                                    //弹出删除套餐信息确认框
+                                    $.ajax({
+                                        type: 'Post',
+                                        url: '/Nova.AutoRepair.Customer/CustomerBusiness/DeletePackageInfo',
+                                        dataType: 'json',
+                                        data: {
+                                            CustomerPackageId: dataItem.Id
+                                        },
+                                        success: function (data) {
+                                            if (data.Success == true) {
+                                                kendo.confirmDialog("删除确认", data.DeletePakcageInfo, function () {
+                                                    $.ajax({
+                                                        type: "post",
+                                                        url: "/Nova.AutoRepair.Customer/CustomerBusiness/DeletePackage",
+                                                        data: {
+                                                            CustomerPackageId: dataItem.Id
+                                                        },
+                                                        success: function (data) {
+                                                            onSuccess();
+                                                        }
+                                                    });
+                                                });
+                                            } else {
+                                                systemAlert(data.Message);
+                                            }
+                                        }
+                                    });
+                                };
+
+                                function onClick_Btn_Print_CustomerPackage(e) {
+                                    var grid = $("#grid_CustomerPackageForCustomerList").data("kendoGrid");
+                                    var selectDataItem = grid.dataItem(grid.select());
+                                    if (!selectDataItem) {
+                                        return;
+                                    }
+                                    kendo.AmsSimpleDialog("window_Print_CustomerPackageCreate", "套餐办理单据", "/Nova.AutoRepair.Invoice/RepairReport/RepairCustomerPackageConsumeReport", { customerPackageId: selectDataItem.Id }, 1000, 800);
+                                }
+                            </script>
+                                <div class="k-widget k-grid" id="grid_CustomerPackageForCustomerList"><div class="k-grid-header"><div class="k-grid-header-wrap"><table><colgroup><col style="width:130px" /><col style="width:200px" /><col style="width:200px" /><col style="width:200px" /><col style="width:100px" /><col style="width:80px" /><col style="width:80px" /><col style="width:180px" /><col style="width:80px" /><col style="width:150px" /><col style="width:80px" /></colgroup><thead class="k-grid-header"><tr><th class="k-header align-center" data-field="BuyCorpShopName" data-index="0" data-title="办理门店" id="f2c443c7-8aa3-413f-a7bd-73a63c0aaa75" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=BuyCorpShopName-asc">办理门店</a></th><th class="k-header align-center" data-field="CarNo" data-index="1" data-title="车牌" id="39db35d2-635e-4ab1-8ac4-0ee5015d312f" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=CarNo-asc">车牌</a></th><th class="k-header align-center" data-field="Name" data-index="2" data-title="套餐名称" id="1789970d-2249-4fbf-a834-d1bc23710e63" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=Name-asc">套餐名称</a></th><th class="k-header align-center" data-field="IsShare" data-index="3" data-title="车辆共享" id="26509e80-4d88-41bd-a1e5-c409139665ad" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=IsShare-asc">车辆共享</a></th><th class="k-header align-center" data-field="SalePrice" data-index="4" data-title="套餐金额" id="ea9fbbef-c90e-443c-8e92-35ce6ecbb836" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=SalePrice-asc">套餐金额</a></th><th class="k-header align-center" data-field="Count" data-index="5" data-title="数量" id="d3ae0488-0ab8-4a87-81a5-4d1ad9243089" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=Count-asc">数量</a></th><th class="k-header align-center" data-field="UseStatus" data-index="6" data-title="状态" id="caa6390e-7bcb-417c-8cb9-14c49ab2f484" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=UseStatus-asc">状态</a></th><th class="k-header align-center" data-field="TimeZone" data-index="7" data-title="时间段" id="56e7daf5-6444-4cf2-a7ec-36e512924153" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=TimeZone-asc">时间段</a></th><th class="k-header align-center" data-field="CreateUserName" data-index="8" data-title="办理人" id="2dba4984-e96c-4e7c-9aec-d96485366e77" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=CreateUserName-asc">办理人</a></th><th class="k-header align-center" data-dir="desc" data-field="CreateTime" data-index="9" data-title="办理时间" id="a0e16a2f-b801-45f5-bd7b-e97348560482" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=~">办理时间<span class="k-icon k-i-sort-desc-sm"></span></a></th><th class="k-header" data-field="ValidEndDate" data-index="10" data-title="是否到期" id="27fe9d48-71a6-439d-863a-91e9b3e212bb" scope="col"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read?grid_CustomerPackageForCustomerList-sort=ValidEndDate-asc">是否到期</a></th></tr></thead></table></div></div><div class="k-grid-content k-auto-scrollable" style="height:200px"><table><colgroup><col style="width:130px" /><col style="width:200px" /><col style="width:200px" /><col style="width:200px" /><col style="width:100px" /><col style="width:80px" /><col style="width:80px" /><col style="width:180px" /><col style="width:80px" /><col style="width:150px" /><col style="width:80px" /></colgroup><tbody><tr class="k-no-data"><td colspan="11"></td></tr></tbody></table></div><div class="k-pager-wrap k-grid-pager"><a aria-label="首页" class="k-link k-pager-nav k-state-disabled k-pager-first" data-page="1" href="#" title="首页"><span class="k-icon k-i-arrow-end-left"></span></a><a aria-label="前页" class="k-link k-pager-nav k-state-disabled" data-page="0" href="#" title="前页"><span class="k-icon k-i-arrow-60-left"></span></a><ul class="k-pager-numbers k-reset"><li><span class="k-state-selected" data-page="1">1</span></li></ul><a aria-label="后页" class="k-link k-pager-nav k-state-disabled" data-page="2" href="#" title="后页"><span class="k-icon k-i-arrow-60-right"></span></a><a aria-label="末页" class="k-link k-pager-nav k-state-disabled k-pager-last" data-page="1" href="#" title="末页"><span class="k-icon k-i-arrow-end-right"></span></a><span class="k-pager-sizes k-label"><select><option value="15">15</option><option value="30">30</option><option value="50">50</option></select>每页</span><a aria-label="刷新" class="k-pager-refresh k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read" title="刷新"><span class="k-icon k-i-refresh"></span></a><span class="k-pager-info k-label">没有可显示的记录。</span></div></div><script>
+                                    kendo.syncReady(function(){jQuery("#grid_CustomerPackageForCustomerList").kendoGrid({"dataBound":onDataBound_Grid_CustomerPackageForCustomerList,"change":onChange_Grid_CustomerPackageForCustomerList,"columns":[{"title":"办理门店","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"BuyCorpShopName","data-title":"办理门店","id":"f2c443c7-8aa3-413f-a7bd-73a63c0aaa75"},"width":"130px","field":"BuyCorpShopName","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"车牌","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"CarNo","data-title":"车牌","id":"39db35d2-635e-4ab1-8ac4-0ee5015d312f"},"width":"200px","field":"CarNo","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"套餐名称","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"Name","data-title":"套餐名称","id":"1789970d-2249-4fbf-a834-d1bc23710e63"},"width":"200px","field":"Name","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"车辆共享","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"IsShare","data-title":"车辆共享","id":"26509e80-4d88-41bd-a1e5-c409139665ad"},"width":"200px","template":"#=formatShare(data)#","field":"IsShare","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"套餐金额","attributes":{"style":"vertical-align: inherit;","class":"align-right"},"headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"SalePrice","data-title":"套餐金额","id":"ea9fbbef-c90e-443c-8e92-35ce6ecbb836"},"width":"100px","field":"SalePrice","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"数量","attributes":{"style":"vertical-align: inherit;","class":"align-right"},"headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"Count","data-title":"数量","id":"d3ae0488-0ab8-4a87-81a5-4d1ad9243089"},"width":"80px","field":"Count","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"状态","attributes":{"style":"vertical-align: inherit;","class":"align-center"},"headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"UseStatus","data-title":"状态","id":"caa6390e-7bcb-417c-8cb9-14c49ab2f484"},"width":"80px","template":"#=formatUseStatus(data)#","field":"UseStatus","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"时间段","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"TimeZone","data-title":"时间段","id":"56e7daf5-6444-4cf2-a7ec-36e512924153"},"width":"180px","field":"TimeZone","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"办理人","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"CreateUserName","data-title":"办理人","id":"2dba4984-e96c-4e7c-9aec-d96485366e77"},"width":"80px","field":"CreateUserName","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"办理时间","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"CreateTime","data-title":"办理时间","id":"a0e16a2f-b801-45f5-bd7b-e97348560482"},"width":"150px","field":"CreateTime","format":"{0:yyyy/MM/dd HH:mm:ss}","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"是否到期","attributes":{"style":"vertical-align: inherit;","class":"align-center"},"headerAttributes":{"data-field":"ValidEndDate","data-title":"是否到期","id":"27fe9d48-71a6-439d-863a-91e9b3e212bb"},"width":"80px","template":"#=formatIsExpire(data)#","field":"ValidEndDate","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true}],"pageable":{"refresh":true,"pageSizes":[15,30,50],"buttonCount":10,"messages":{"display":"显示条目 {0} - {1} 共 {2}","empty":"没有可显示的记录。","page":"页","of":"共 {0}","itemsPerPage":"每页","first":"首页","previous":"前页","next":"后页","last":"末页","refresh":"刷新","morePages":"更多页"}},"sortable":true,"selectable":"Single, Row","columnMenu":{"messages":{"filter":"过滤","columns":"列","sortAscending":"升序排序","sortDescending":"降序排序","done":"做","settings":"列设置","lock":"锁","unlock":"开锁"}},"resizable":true,"reorderable":true,"scrollable":{"height":"200px"},"messages":{"noRecords":"没有可用的记录。"},"dataSource":{"type":(function(){if(kendo.data.transports['aspnetmvc-ajax']){return 'aspnetmvc-ajax';} else{throw new Error('The kendo.aspnetmvc.min.js script is not included.');}})(),"transport":{"read":{"url":"/Nova.AutoRepair.Customer/CustomerBusiness/Grid_CustomerPackage_Read","data":onAddtionData},"prefix":""},"pageSize":30,"page":1,"total":0,"serverPaging":true,"serverSorting":true,"serverFiltering":true,"serverGrouping":true,"serverAggregates":true,"sort":[{"field":"CreateTime","dir":"desc"}],"filter":[],"schema":{"data":"Data","total":"Total","errors":"Errors","model":{"id":"Id","fields":{"Id":{"type":"number"},"IsShare":{"type":"boolean"},"BuyCorpShopId":{"type":"number"},"BuyCorpShopName":{"type":"string"},"CarNo":{"type":"string"},"Code":{"type":"string"},"Name":{"type":"string"},"SalePrice":{"type":"number"},"TimeZone":{"editable":false,"type":"string"},"Count":{"type":"number"},"RestCount":{"type":"number"},"CreateUserName":{"type":"string"},"CreateBy":{"type":"number"},"CreateTime":{"type":"date"},"ModifyBy":{"type":"number"},"ModifyTime":{"type":"date"},"ValidStartDate":{"type":"date","defaultValue":null},"ValidEndDate":{"type":"date","defaultValue":null},"UseStatus":{"type":"string"},"PackageName":{"type":"string"},"OwnData":{"type":"boolean"},"AllowOrganization":{"type":"string"},"IsCurrency":{"type":"boolean"},"UseOrg":{"type":"object"},"BillNo":{"type":"string"}}}}},"detailTemplate":kendo.template(jQuery('#detailTemplate').html()),"navigatable":true});});
+                                </script>
+
+                                <script id="detailTemplate" type="text/kendo-tmpl">
+    <div class="k-widget k-grid" id="grid_CustomerPackageDetail_#=Id#"><div class="k-grid-header"><div class="k-grid-header-wrap"><table><colgroup><col style="width:120px" /><col style="width:160px" /><col style="width:141px" /><col style="width:80px" /><col style="width:80px" /><col style="width:80px" /><col style="width:120px" /></colgroup><thead class="k-grid-header"><tr><th class="k-header" data-field="Id" data-index="0" data-title="套餐详情" id="21424af9-17fa-4bcf-b537-64bde351be27" scope="col"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/grid_CustomerPackageDetail_Read?grid_CustomerPackageDetail_%23%3DId%23-sort=Id-asc">套餐详情</a></th><th class="k-header align-center" data-field="Code" data-index="1" data-title="编码" id="5301374f-5af1-4678-9cf2-983885ad35a3" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/grid_CustomerPackageDetail_Read?grid_CustomerPackageDetail_%23%3DId%23-sort=Code-asc">编码</a></th><th class="k-header align-center" data-field="Name" data-index="2" data-title="名称" id="fcc7c2a6-223c-425f-a60d-e7722aded9e0" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/grid_CustomerPackageDetail_Read?grid_CustomerPackageDetail_%23%3DId%23-sort=Name-asc">名称</a></th><th class="k-header align-center" data-field="Count" data-index="3" data-title="数量" id="ff68a78a-8880-4d37-b584-0b05bfa7568b" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/grid_CustomerPackageDetail_Read?grid_CustomerPackageDetail_%23%3DId%23-sort=Count-asc">数量</a></th><th class="k-header align-center" data-field="UseCount" data-index="4" data-title="使用数量" id="2dc52e59-3a0b-4004-9a9a-51536befedbb" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/grid_CustomerPackageDetail_Read?grid_CustomerPackageDetail_%23%3DId%23-sort=UseCount-asc">使用数量</a></th><th class="k-header align-center" data-field="RemainCount" data-index="5" data-title="剩余数量" id="a809ad83-5bab-4dc9-b3ce-bb593b1a8986" scope="col" style="vertical-align: inherit;"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/grid_CustomerPackageDetail_Read?grid_CustomerPackageDetail_%23%3DId%23-sort=RemainCount-asc">剩余数量</a></th><th class="k-header" data-field="Id" data-index="6" data-title="" id="7e8e2c46-49fa-4b27-a474-8f67f4999254" scope="col"><a class="k-link" href="/Nova.AutoRepair.Customer/CustomerBusiness/grid_CustomerPackageDetail_Read?grid_CustomerPackageDetail_%23%3DId%23-sort=Id-asc"> </a></th></tr></thead></table></div></div><div class="k-grid-content k-auto-scrollable" style="height:100px"><table><colgroup><col style="width:120px" /><col style="width:160px" /><col style="width:141px" /><col style="width:80px" /><col style="width:80px" /><col style="width:80px" /><col style="width:120px" /></colgroup><tbody><tr class="k-no-data"><td colspan="7"></td></tr></tbody></table></div></div><script>
+	kendo.syncReady(function(){jQuery("\#grid_CustomerPackageDetail_#=Id#").kendoGrid({"columns":[{"title":"套餐详情","headerAttributes":{"data-field":"Id","data-title":"套餐详情","id":"21424af9-17fa-4bcf-b537-64bde351be27"},"width":"120px","field":"Id","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"编码","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"Code","data-title":"编码","id":"5301374f-5af1-4678-9cf2-983885ad35a3"},"width":"160px","field":"Code","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"名称","headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"Name","data-title":"名称","id":"fcc7c2a6-223c-425f-a60d-e7722aded9e0"},"width":"141px","field":"Name","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"数量","attributes":{"style":"vertical-align:inherit;","class":"align-right"},"headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"Count","data-title":"数量","id":"ff68a78a-8880-4d37-b584-0b05bfa7568b"},"width":"80px","template":"\\#=formatCount(data)\\#","field":"Count","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"使用数量","attributes":{"style":"vertical-align:inherit;","class":"align-right"},"headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"UseCount","data-title":"使用数量","id":"2dc52e59-3a0b-4004-9a9a-51536befedbb"},"width":"80px","field":"UseCount","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"title":"剩余数量","attributes":{"style":"vertical-align:inherit;","class":"align-right"},"headerAttributes":{"style":"vertical-align: inherit;","class":"align-center","data-field":"RemainCount","data-title":"剩余数量","id":"a809ad83-5bab-4dc9-b3ce-bb593b1a8986"},"width":"80px","template":"\\#=formatRemainCount(data)\\#","field":"RemainCount","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true},{"headerAttributes":{"data-field":"Id","data-title":"","id":"7e8e2c46-49fa-4b27-a474-8f67f4999254"},"width":"120px","field":"Id","filterable":{"messages":{"info":"显示符合以下条件的行","isTrue":"为真","isFalse":"为假","filter":"过滤","clear":"清除过滤","and":"并且","or":"或者","selectValue":"-选择值-","operator":"接线员","value":"值","cancel":"取消"},"operators":{"string":{"eq":"等于","neq":"不等于","startswith":"开始于","endswith":"结束于","contains":"包含","doesnotcontain":"不包含","isnull":"Is null","isnotnull":"Is not null","isempty":"Is empty","isnotempty":"Is not empty","isnullorempty":"Has no value","isnotnullorempty":"Has value"},"number":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"date":{"eq":"等于","neq":"不等于","gte":"大于或等于","gt":"大于","lte":"小于或等于","lt":"小于","isnull":"Is null","isnotnull":"Is not null"},"enums":{"eq":"等于","neq":"不等于","isnull":"Is null","isnotnull":"Is not null"}}},"encoded":true}],"sortable":true,"columnMenu":{"messages":{"filter":"过滤","columns":"列","sortAscending":"升序排序","sortDescending":"降序排序","done":"做","settings":"列设置","lock":"锁","unlock":"开锁"}},"resizable":true,"reorderable":true,"scrollable":{"height":"100px"},"messages":{"noRecords":"没有可用的记录。"},"dataSource":{"type":(function(){if(kendo.data.transports['aspnetmvc-ajax']){return 'aspnetmvc-ajax';} else{throw new Error('The kendo.aspnetmvc.min.js script is not included.');}})(),"transport":{"read":{"url":"/Nova.AutoRepair.Customer/CustomerBusiness/grid_CustomerPackageDetail_Read","data":onAddPackageId('#=Id#')},"prefix":""},"pageSize":30,"page":1,"total":0,"schema":{"data":"Data","total":"Total","errors":"Errors","model":{"id":"Id","fields":{"Id":{"type":"number"},"CustomerId":{"type":"number"},"CustomerName":{"type":"string"},"MemberPackageId":{"type":"number"},"ForeignKeyId":{"type":"number"},"Code":{"type":"string"},"Name":{"type":"string"},"Type":{"type":"number"},"TypeDisplay":{"editable":false,"type":"string"},"Count":{"type":"number"},"CountString":{"editable":false,"type":"string"},"UseCount":{"type":"number"},"LaborHours":{"type":"number"},"RemainCount":{"type":"number","defaultValue":null},"SalePrice":{"type":"number"},"TotalPrice":{"type":"number"},"Remark":{"type":"string"},"PicCount":{"type":"number","defaultValue":null},"OrganizationId":{"type":"number"},"PackageOrganizationId":{"type":"number"},"IsSysPublic":{"type":"boolean"},"PartsInventoryCount":{"type":"number","defaultValue":null},"IsEnabled":{"type":"boolean"}}}}}});});
+<\/script>
+</script></div></div></div><script>
+                            kendo.syncReady(function(){jQuery("#tabStrip").kendoTabStrip({"animation":false,"contentUrls":["/Nova.AutoRepair.Repair/ServiceCar/Partial_Edit_RepairHistoryInner/0","",""]});});
+                        </script>
+                        </div>
+
+                        <script src="/Modules/Nova.AutoRepair.Repair/Styles/js/washcar/washcar_create.js?_=8.3.6759.20311"></script>
+
+                        <script type="text/javascript">
+                            //后台资源js化
+                            window.WashCarPageRes = {
+                                EnumHistorySearchType:["本店历史","它店历史"],
+                                Model: '',
+                                ServiceCarIndex: "/Nova.AutoRepair.Repair/ServiceCar",
+                                CreatePost: "/Nova.AutoRepair.Repair/WashCar/CreatePost",//新建接车单
+                                Edit: "/Nova.AutoRepair.Repair/WashCar/Edit",
+                                ValueMapper_CarUrl: "/Nova.AutoRepair.Customer/Car/ValueMapper_Car",
+                                GetCarAndCustomerDetailsBooking: "/Nova.AutoRepair.Customer/Car/GetCarAndCustomerDetailsBooking",//车辆详情
+                                GetCustomerByCarIdForRepair: "/Nova.AutoRepair.Customer/Customer/GetCustomerByCarIdForRepair",//车辆详情
+                            };
+                        </script>
+                    </div>
+                    <!-- PAGE CONTENT ENDS -->
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+
+        <!-- /.row -->
+        <!-- /.page-content -->
+
+    </div>
